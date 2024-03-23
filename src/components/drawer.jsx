@@ -196,7 +196,7 @@ export default function PersistentDrawerLeft() {
       }}
       variant="contained"
     >
-      {user ? `Logout (${user.displayName})` : "Login"}
+      {user ? `Logout (${user?.displayName})` : "Login"}
     </Button>
 
 

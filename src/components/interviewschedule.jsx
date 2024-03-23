@@ -82,7 +82,6 @@ import { getDocs , collection} from "firebase/firestore";
 
 export default function InterviewSchedule() {
 
-
   const [rows , setRows] = useState([
     {
       id: 1,

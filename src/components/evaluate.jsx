@@ -5,7 +5,7 @@ import {db} from "../config/firebase-config"
 import { getDocs , collection} from "firebase/firestore";
 import { useState , useEffect } from "react";
 
-console.log(auth?.currentUser);
+console.log(auth?.currentUser?.uid);
 
 
 
@@ -164,9 +164,10 @@ export default function Evaluate() {
 
 // useEffect(() => {
 //   console.log(rowss);
-// }, [rows]);
+// }, [rowss]);
 
 const newDataArray = rowss.map((data, index) => ({
+  uid : data.uid,
   id: index + 1,
   serial_no: index + 1,
   roll_no: data.roll_no,

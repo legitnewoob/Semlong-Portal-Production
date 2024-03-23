@@ -25,7 +25,7 @@ import {auth , googleProvider} from "../config/firebase-config";
 import {db} from "../config/firebase-config"
 import { getDocs , collection , addDoc} from "firebase/firestore";
 
-console.log(auth?.currentUser);
+console.log(auth?.currentUser?.uid);
 
 
 export default function Form() {

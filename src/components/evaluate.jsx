@@ -55,11 +55,16 @@ const columns = [
     width: 250,
     flex: 1,
     renderCell: (params) => (
-      <Button variant="contained" href = "/assessment" target="_blank">
-        {/* href={"/assess?id=" + params.row.roll_no} */}
+      <Button
+        variant="contained"
+        href={`/assessment/${params.row.uid}`} // Add user ID as a query parameter
+        target="_blank"
+      >
         Evaluate / Edit
       </Button>
     ),
+    
+    
   },
 ];
 

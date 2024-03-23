@@ -499,6 +499,7 @@ export default function Form() {
                   }}
                 >
                   <Button
+                  // sx = {{backgroundColor : "#ed1c24"}}
                     type="submit"
                     fullWidth
                     variant="contained"
@@ -506,6 +507,7 @@ export default function Form() {
                       fontSize: "1.5rem",
                       borderRadius: "30px",
                       width: "25vh",
+                      backgroundColor : "#b7202e"
                     }}
                     onClick={() => {
                       window.alert("Please Wait...");

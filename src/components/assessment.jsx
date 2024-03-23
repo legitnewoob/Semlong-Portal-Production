@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   Avatar,
   Box,
@@ -19,6 +20,15 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { useParams } from 'react-router-dom';
+
 
 const details = {
   name: "Raj Agrawal",
@@ -54,6 +64,24 @@ for (let i = 0; i <= 10; i++) {
 }
 
 export default function Assessment() {
+
+  const params = useParams();
+
+  const userId = params.userId;
+
+  console.log(userId);
+
+  const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
  
   const [data, setData] = useState(rows);
 
@@ -141,23 +169,51 @@ export default function Assessment() {
                     width: "200px",
                     height: "60px",
                   }}
-                  href="./responseform"
+                  href={`/responseform/${userId}`}
                   target="_blank"
                 >
                   View Form Response
                 </Button>
-                <Button
-                  variant="contained"
-                  sx={{
-                    width: "200px",
-                    height: "60px",
-                    margin: "16px 0",
-                  }}
-                  href="https://ibb.co/2cpLy9d"
-                  target="_blank"
-                >
-                  View Rubrics
-                </Button>
+                <React.Fragment>
+  <Button
+    variant="contained"
+    sx={{
+      width: "200px",
+      height: "60px",
+      margin: "16px 0",
+    }}
+    onClick={handleClickOpen}
+  >
+    View Rubrics
+  </Button>
+  <Dialog
+    fullScreen={fullScreen}
+    open={open}
+    onClose={handleClose}
+    aria-labelledby="responsive-dialog-title"
+  >
+    <DialogTitle id="responsive-dialog-title">
+      {"Rubrics to be followed"}
+    </DialogTitle>
+    <DialogContent>
+  <img
+    style={{ maxWidth: "100%", height: 'auto' }}
+    src="rubrics.png"
+    alt="image"
+    onError={(e) => {
+      console.error("Error loading image:", e);
+      e.target.style.display = 'none'; // Hide the image if an error occurs
+    }}
+  />
+</DialogContent>
+
+    <DialogActions>
+      <Button autoFocus onClick={handleClose}>
+        Close
+      </Button>
+    </DialogActions>
+  </Dialog>
+</React.Fragment>
               </Box>
             </Grid>
           </Grid>

@@ -37,6 +37,10 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import {auth , googleProvider} from "../config/firebase-config";
 import {signInWithPopup  , signOut} from "firebase/auth";
 import { Button } from "@mui/material";
+import Introduction from "./introduction";
+import Error404 from "./error";
+
+import { useMediaQuery } from '@mui/material';
 
 
 
@@ -96,10 +100,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
+export const signInWithGoogle = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider);
+    console.log("click");
+  } catch (error) {
+    console.error("Error signing in with Google:", error.message);
+  }
+};
 
 
 
 export default function PersistentDrawerLeft() {
+
+  const isMobile = useMediaQuery('(max-width: 960px)');
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -114,14 +128,6 @@ export default function PersistentDrawerLeft() {
 
   
   
-  const signInWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      console.log("click");
-    } catch (error) {
-      console.error("Error signing in with Google:", error.message);
-    }
-  };
 
   const logout = async () => {
     try {
@@ -146,6 +152,7 @@ export default function PersistentDrawerLeft() {
     setUser(user);
   };
 
+  // console.log(user);
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(handleAuthStateChanged);
 
@@ -158,7 +165,7 @@ export default function PersistentDrawerLeft() {
     <Box marginLeft={'16.4rem'}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
-        <Toolbar sx={{ display: "flex" }}>
+        <Toolbar sx={{ display: "flex" , alignItems : "center" , justifyContent : "space-between", backgroundColor : '#b7202e'}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -168,11 +175,23 @@ export default function PersistentDrawerLeft() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Semester Long Internship
-          </Typography>
+          {/* <img src="" alt="Logo" style={{ width: '40px' }} /> */}
+         
 
-
+          <Typography 
+  variant="h6" 
+  noWrap 
+  component="div" 
+  sx={{
+    fontSize: "110%",
+    flex: 1, // Allow the Typography to grow and occupy all available space
+    minWidth: 0, // Ensure the Typography can shrink if needed
+    overflow: 'hidden', // Prevent text overflow
+    textOverflow: 'ellipsis', // Show ellipsis (...) for overflow text
+  }}
+>
+  Semester Long Internship
+</Typography>
           {/* <Button 
     onClick={signInWithGoogle}
     style={{
@@ -188,34 +207,39 @@ export default function PersistentDrawerLeft() {
 </Button> */}
 
 <Button
-      onClick={user ? logout : signInWithGoogle}
-      style={{
-        backgroundColor: "#e4edec",
-        color: "#000000",
-        marginLeft: "70em",
-      }}
-      variant="contained"
-    >
+    onClick={user ? logout : signInWithGoogle}
+    style={{
+      backgroundColor: "#e4edec",
+      color: "#000000",
+      minWidth: "10%", // Set a minimum width for the button
+      ...(user ? { width: "auto" } : { width: "fit-content" }), // Conditionally set width based on user login status
+    }}
+    variant="contained"
+  >
       {user ? `Logout (${user?.displayName})` : "Login"}
     </Button>
 
-
-          
         </Toolbar>
+
+       
       </AppBar>
 
       <Drawer
         sx={{
-          width: drawerWidth,
+          width: isMobile? '100%' : drawerWidth,
           flexShrink: 0,
           "& .MuiDrawer-paper": {
-            width: drawerWidth,
+            width: isMobile? '100%' : drawerWidth,
             boxSizing: "border-box",
           },
         }}
-        variant="persistent"
-        anchor="left"
+        variant={isMobile? "temporary" : "persistent"}
+        anchor={isMobile? "top" : "left"}
         open={open}
+        onClose={handleDrawerClose}
+        ModalProps={{
+      keepMounted: true, // Better open performance on mobile.
+    }}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -229,6 +253,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <List>
           {[
+            "Home",
             "Profile",
             "Form",
             "NPTEL",
@@ -238,12 +263,12 @@ export default function PersistentDrawerLeft() {
             // "Result",
           ].map((text, index) => (
             <ListItem
-              key={text}
-              component="a"
-              disablePadding
-              href={"/" + text.toLowerCase()}
-              sx={{ color: "black" }}
-            >
+            key={text}
+            component="a"
+            disablePadding
+            href={text === "Home" ? "/" : "/" + text.toLowerCase()}
+            sx={{ color: "black" }}
+          >
               <ListItemButton>
                 <ListItemIcon>{listIcons[index]}</ListItemIcon>
                 <ListItemText primary={text} />
@@ -252,20 +277,25 @@ export default function PersistentDrawerLeft() {
           ))}
         </List>
       </Drawer>
+      
       <Main open={open}>
         <DrawerHeader />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<>hello</>} />
-            <Route path="/form" element={<Form />} />
-            <Route path="/evaluate" element={<Evaluate />} />
-            <Route path="/assessment" element={<Assessment />} />
-            <Route path="/nptel" element={<ChoiceForm />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/responseform" element={<ResponseForm />} />
-            <Route path="/interview" element={<InterviewSchedule />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+        <Route path="/" element={<Introduction/>} />
+        <Route path="/form" element={<Form />} />
+        <Route path="/evaluate" element={<Evaluate />} />
+        <Route path="/assessment" element={<Assessment />}>
+          <Route path=":userId" element={<Assessment />} />
+        </Route>
+        <Route path="/nptel" element={<ChoiceForm />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/responseform" element={<ResponseForm />}>
+          <Route path=":userId" element={<Assessment />} />
+        </Route>
+        <Route path="/interview" element={<InterviewSchedule />} />
+        {/* Add a route for undefined paths */}
+        <Route path="/*" element={<Error404/>} />
+  </Routes>
       </Main>
     </Box>
   );

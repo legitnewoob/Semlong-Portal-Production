@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
+import { useParams } from "react-router-dom";
 
 const details = {
   name: "Raj Agrawal",
@@ -39,6 +40,13 @@ const details = {
   drive_link: "totallylegitlink.com",
 };
 export default function ResponseForm() {
+
+
+  const params = useParams();
+
+  const userId = params.userId;
+
+  console.log(userId);
   return (
     <div
       style={{

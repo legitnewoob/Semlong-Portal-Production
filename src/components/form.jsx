@@ -23,7 +23,10 @@ import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import {auth , googleProvider} from "../config/firebase-config";
 import {db} from "../config/firebase-config"
-import { getDocs , collection , addDoc} from "firebase/firestore";
+import { getDoc , getDocs , collection , addDoc , setDoc} from "firebase/firestore";
+import {updateDoc, doc} from "firebase/firestore";
+import { increment } from "firebase/firestore";
+
 
 console.log(auth?.currentUser?.uid);
 
@@ -105,9 +108,34 @@ export default function Form() {
     
     try {
       // Add the document to the collection
-      const docRef = await addDoc(collection(db, "form-data"), formData);
-      console.log("Document written with ID: ", docRef.id);
+      const customId = auth?.currentUser?.uid;
+      const docRef = await setDoc(doc(db, "form-data", customId), formData); // Use setDoc instead of addDoc
+
+      // console.log("Document written with ID: ", docRef.id);
+      const userDocRef = doc(db, "user-data", formData.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+    
+    // Step 3: Check if the user document exists
+    if (userDocSnapshot.exists()) {
+      // Step 4: Update the document in the 'user-data' collection
+      await updateDoc(userDocRef, {
+        dept: formData.dept,
+        email: formData.email,
+        final_verdict: false,
+        form_submitted: increment(1),
+        interview_details: null,
+        interview_venue: null,
+        name: formData.name,
+        nptel_form_submitted: 0,
+        phone_no: formData.phone_no || null, 
+        roll_no: formData.roll_no || null,
+        semlong_approved: false,
+        user_type: "Student",
+        category : caseno,
+      });
+    }
       window.alert("Form Submitted Successfully");
+      
     } catch (error) {
       console.error("Error adding document: ", error);
     }
@@ -141,8 +169,8 @@ export default function Form() {
         flexDirection: "column",
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ marginInlineStart: "25px" }}>
-        Semlong Internship Application Form
+      <Typography variant="h4" gutterBottom sx={{ marginInlineStart: "25px" , fontWeight : "600"}}>
+        Application Form
       </Typography>
       <Box sx={{ width: "95%" }}>
         <Paper
@@ -245,10 +273,10 @@ export default function Form() {
                     label="Case"
                     onChange={handleCase}
                   >
-                    <MenuItem value={"Through_College"}>
+                    <MenuItem value={"Through College"}>
                       Case 1 : Through College
                     </MenuItem>
-                    <MenuItem value={"Through_Self"}>
+                    <MenuItem value={"Through Self"}>
                       Case 2 : Through Self
                     </MenuItem>
                   </Select>

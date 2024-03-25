@@ -8,6 +8,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import { useEffect } from 'react';
 import Grid from "@mui/material/Grid";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -30,12 +31,10 @@ import { useTheme } from '@mui/material/styles';
 import { useParams } from 'react-router-dom';
 
 
-const details = {
-  name: "Raj Agrawal",
-  email: "raj.ma@somaiya.edu",
-  roll_no: 16010121003,
-  dept: "Computer Engineering",
-};
+// Stuff for backend
+import { auth  , db} from "../config/firebase-config";
+import {doc , getDoc} from "firebase/firestore";
+
 
 const rows = [
   { serialNo: 1, Name: "Weeks of internship done", scoreGiven: 0 },
@@ -69,7 +68,44 @@ export default function Assessment() {
 
   const userId = params.userId;
 
-  console.log(userId);
+  const [userData, setUserData] = useState(null); // State to store user data
+
+  // const [userData, setUserData] = useState(null); // State to hold user data
+  // const userId = 'your_user_id'; // Replace 'your_user_id' with the actual user ID
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+        
+       const userDocRef = doc(db, 'user-data', userId);
+        try {
+          const userDocSnapshot = await getDoc(userDocRef);
+
+          if (userDocSnapshot.exists()) {
+            const userData = userDocSnapshot.data();
+            setUserData(userData); // Set the user data state
+          } else {
+            console.log('No such document!');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  console.log(
+    "userData in assessment : " , userData
+  )
+
+  const details = {
+    name: userData?.name,
+    email: userData?.email,
+    roll_no: userData?.roll_no,
+    dept: userData?.dept,
+  };
+  
 
   const [open, setOpen] = React.useState(false);
   const theme = useTheme();
@@ -123,7 +159,7 @@ export default function Assessment() {
               >
                 <Avatar
                   alt="Remy Sharp"
-                  src="https://avatarfiles.alphacoders.com/192/192706.jpg"
+                  src= {userData?.photoURL}
                   sx={{ width: 160, height: 160 }}
                 />
               </Box>

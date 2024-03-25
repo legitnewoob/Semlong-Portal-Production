@@ -17,7 +17,7 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from '@mui/material/Link';
-import { signInWithGoogle } from './drawer';
+// import { signInWithGoogle } from './drawer';
 
 // import { Auth } from 'firebase/auth';
 // import {auth , googleProvider} from "../config/firebase-config";
@@ -106,24 +106,13 @@ export default function Introduction() {
         Follow these instructions to get your application submitted:
       </Typography>
       <Typography variant="body1" fontWeight={600} gutterBottom>
-        1. If you are not logged in ,
-         <Link
-        onClick={signInWithGoogle}
-        sx={{
-            cursor: 'pointer',
-            '&:hover': {
-            textDecoration: 'underline',
-            },
-        }}
-        >
-        click here
-        </Link> to login
+        1. If you are not logged in , click on login button in top right corner.
       </Typography>
       <Typography variant="body1" fontWeight={600} gutterBottom>
         2. Click <Link href="./form">click here</Link> to fill application form.
       </Typography>
       <Typography variant="body1" mb={"1.4em"} fontWeight={600} gutterBottom>
-        3. Click <Link href="./">click here</Link> to fill nptel choice form.
+        3. Click <Link href="./nptel">click here</Link> to fill nptel choice form.
         
       </Typography>
       <Typography variant="h6" fontWeight={600} textAlign="center" gutterBottom>

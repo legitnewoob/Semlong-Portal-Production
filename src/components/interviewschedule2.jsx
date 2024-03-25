@@ -33,7 +33,7 @@ export default function InterviewSchedule2() {
             ...doc.data(), // Spread the rest of the document data
           }));
           setRows(formData);
-          const initialVenueValues = formData.map((data) => data.interview_venue || "");
+          const initialVenueValues = formData.map((data) => data.interview_venue || "B101");
           setVenueValues(initialVenueValues);
       } catch (err) {
         console.error("Error finding data: ", err);
@@ -152,7 +152,7 @@ const newDataArray = rows.map((data, index) => {
   const handleDateChange = (index, newValue) => {
     const updatedRows = [...rows];
     
-    const formattedDate = newValue.format('YYYY-MM-DD');
+    console.log("new_value : " , newValue);
     
 //     const year = firestoreDate.getFullYear();
 //     const month = firestoreDate.getMonth() + 1; // Adding 1 because getMonth() returns zero-based month (0-11)
@@ -162,7 +162,7 @@ const newDataArray = rows.map((data, index) => {
 //     const dateString = `${year}-${month.toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
 
 
-    updatedRows[index].interview_date = formattedDate;
+    updatedRows[index].interview_date = newValue.toLocaleTimeString();
     setRows(updatedRows);
   };
 
@@ -199,7 +199,7 @@ const newDataArray = rows.map((data, index) => {
         await updateDoc(userDocRef, {
           interview_date: rows[i].interview_date,
           interview_time: rows[i].interview_time,
-          interview_venue: rows[i].interview_venue,
+          interview_venue: rows[i].venue,
         });
       }
       alert("Interview Details Updated");

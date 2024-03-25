@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import {
   Box,
   Button,
@@ -22,31 +23,58 @@ import {
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import { useParams } from "react-router-dom";
+import { auth  , db} from "../config/firebase-config";
+import {doc , getDoc} from "firebase/firestore";
 
-const details = {
-  name: "Raj Agrawal",
-  roll_no: "16010121003",
-  dept: "Computer Engineering",
-  email: "rajmineshagrawal@gmail.com",
-  phone_no: "+917726877146",
-  case_no: "Through_College",
-  read_policy: "yes",
-  organization: "Google",
-  details_organzation: "SDE Intern",
-  offer: "yes",
-  full_time: "yes",
-  company_name: "Google",
-  stipend: "2,00,000",
-  drive_link: "totallylegitlink.com",
-};
+
 export default function ResponseForm() {
-
-
   const params = useParams();
-
   const userId = params.userId;
+  const [userData, setUserData] = useState(null); // State to store user data
 
+  // const [userData, setUserData] = useState(null); // State to hold user data
+  // const userId = 'your_user_id'; // Replace 'your_user_id' with the actual user ID
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+        
+       const userDocRef = doc(db, 'form-data', userId);
+        try {
+          const userDocSnapshot = await getDoc(userDocRef);
+
+          if (userDocSnapshot.exists()) {
+            const userData = userDocSnapshot.data();
+            setUserData(userData); // Set the user data state
+          } else {
+            console.log('No such document!');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      
+    };
+
+    fetchUserData();
+  }, [userId]);
+  console.log({ userData });
   console.log(userId);
+
+  const details = {
+    name: userData?.name,
+    roll_no: userData?.roll_no,
+    dept: userData?.dept,
+    email: userData?.email,
+    phone_no: userData?.phone_no,
+    case_no: userData?.case_no,
+    read_policy: "yes",
+    organization: userData?.organization,
+    details_organzation: userData?.details_organization,
+    offer: userData?.offer,
+    full_time: userData?.full_time,
+    company_name: userData?.company_name,
+    stipend: userData?.stipend,
+    drive_link: userData?.drive_link,
+  };
   return (
     <div
       style={{
@@ -261,14 +289,14 @@ export default function ResponseForm() {
               >
                 <Typography variant="h5" fontWeight={300} component="span">
                   <Typography component="span" variant="span" fontWeight={500}>
-                    Drive Link : 
+                    Drive Link  :  
                   </Typography>
                   <a
                     href={details.drive_link}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {details.drive_link}
+                    Click Here
                   </a>
                 </Typography>
               </Grid>

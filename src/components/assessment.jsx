@@ -33,7 +33,8 @@ import { useParams } from 'react-router-dom';
 
 // Stuff for backend
 import { auth  , db} from "../config/firebase-config";
-import {doc , getDoc} from "firebase/firestore";
+import {doc , getDoc , setDoc} from "firebase/firestore";
+import { WindowSharp } from '@mui/icons-material';
 
 
 const rows = [
@@ -62,11 +63,12 @@ for (let i = 0; i <= 10; i++) {
   );
 }
 
+
 export default function Assessment() {
 
   const params = useParams();
 
-  const userId = params.userId;
+  const userId = params.userId ? params.userId : null;
 
   const [userData, setUserData] = useState(null); // State to store user data
 
@@ -83,8 +85,34 @@ export default function Assessment() {
           if (userDocSnapshot.exists()) {
             const userData = userDocSnapshot.data();
             setUserData(userData); // Set the user data state
+            
+            const scoresDocRef = doc(db, "scores", userData?.uid);
+            const scoresDocSnapshot = await getDoc(scoresDocRef);
+            if (scoresDocSnapshot.exists()) {
+              const scoresData = scoresDocSnapshot.data();
+          console.log(scoresData);
+
+          const currentUserScores = scoresData[userId][auth?.currentUser?.uid];
+
+          console.log("current_scores" , currentUserScores);
+          if (currentUserScores) {
+            currentUserScores.forEach((scoreObj) => {
+              const scoreName = Object.keys(scoreObj)[0];
+              const scoreGiven = scoreObj[scoreName];
+              const rowIndex = rows.findIndex((row) => row.Name === scoreName);
+              if (rowIndex !== -1) {
+                const updatedRow = { ...rows[rowIndex], scoreGiven };
+                rows[rowIndex] = updatedRow;
+              }
+            });
+            setData([...rows]);
+            }
+          }
+            else{
+              console.log("No Document")
+            }
           } else {
-            console.log('No such document!');
+            alert('No such document!');
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -94,10 +122,10 @@ export default function Assessment() {
 
     fetchUserData();
   }, [userId]);
-
-  console.log(
-    "userData in assessment : " , userData
-  )
+  
+  // console.log(
+  //   "userData in assessment : " , userData
+  // )
 
   const details = {
     name: userData?.name,
@@ -126,6 +154,26 @@ export default function Assessment() {
     data[index].scoreGiven = event.target.value;
     setData(updatedData);
     console.log(data);
+  };
+
+
+  const handleUpdateScores = async () => {
+    if (userData) {
+      const scoresRef = doc(db, "scores", userData.uid);
+      const scoresData = {
+        [userData.uid]: {
+          [auth?.currentUser?.uid]: data.map((item) => ({
+            [item.Name]: item.scoreGiven,
+          })),
+        },
+      };
+      try {
+        await setDoc(scoresRef, scoresData, { merge: true });
+        window.alert("Scores updated successfully!");
+      } catch (error) {
+        console.error("Error updating scores:", error);
+      }
+    }
   };
   return (
     <Box>
@@ -316,6 +364,7 @@ export default function Assessment() {
           </TableContainer>
         </Paper>
         <Button
+          onClick={handleUpdateScores}
           variant="contained"
           style={{
             display: "flex",

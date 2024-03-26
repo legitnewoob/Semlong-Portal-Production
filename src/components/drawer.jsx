@@ -50,6 +50,7 @@ import Protected from "../context/protect_me";
 import { onAuthStateChanged } from "firebase/auth";
 import KeepKids from "../context/keep_kids"
 // import { useAuthState } from 'react-firebase-hooks/auth';
+import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 
 import { useMediaQuery } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
@@ -69,7 +70,11 @@ const listIcons = [
   <IndeterminateCheckBoxIcon sx={{color: '#153857'}}/>,
   <CalendarMonthIcon sx={{color: '#153857'}}/>,
   <AssessmentIcon sx={{color: '#153857'}}/>,
-  <CheckIcon sx={{color: '#153857'}}/>,
+  <FeedRoundedIcon sx={{color: '#153857'}}/>,
+  <FeedRoundedIcon sx={{color: '#153857'}}/>,
+  <FeedRoundedIcon sx={{color: '#153857'}}/>,
+  <FeedRoundedIcon sx={{color: '#153857'}}/>,
+  <FeedRoundedIcon sx={{color: '#153857'}}/>,
 ];
 const drawerWidth = 240;
 
@@ -231,32 +236,7 @@ export default function PersistentDrawerLeft() {
 
   const [user, setUser] = useState(null);
 
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-  //     if (currentUser) {
-  //       try {
-  //         const userDocRef = doc(db, 'user-data', currentUser.uid);
-  //         const userDocSnapshot = await getDoc(userDocRef);
-
-  //         if (userDocSnapshot.exists()) {
-  //           setUser(userDocSnapshot.data());
-  //           console.log("USER DATA:" , user);
-  //         } else {
-  //           // Handle the case when user data doesn't exist
-  //           console.log("User data doesn't exist in the collection.");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching user data:", error.message);
-  //       }
-  //     } else {
-  //       setUser(null); // Reset user state if currentUser is null (user is not logged in)
-  //     }
-  //   });
-
-  //   return () => unsubscribe(); // Unsubscribe from the auth state listener when component unmounts
-  // }, []);
-
-  console.log(user);
+  // console.log(user);
 
   // Function to handle authentication state changes
   const handleAuthStateChanged = (user) => {
@@ -281,29 +261,22 @@ export default function PersistentDrawerLeft() {
 
 
   useEffect(() => {
-    // Perform the authentication check here
-    // Once authentication status is determined, update the state
-    // For example, using Firebase Authentication
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log("Auth Check");
-      console.log("user" , user);
-      if(user) 
-      {
-         setIsLoggedIn(true);
-         setIsLoading(false);
-         setUserData2(user);
-
-         const userDocRef = doc(db, "user-data", user?.uid);
-         const userDocSnapshot = await getDoc(userDocRef);
-
-         if(userDocSnapshot.exists())
-         {
-           const datahere = userDocSnapshot.data();
-           console.log("datahere" , datahere);
-           setUserData2(datahere);
-
-           if(datahere.user_type == "Evaluator")
-           {
+      setIsLoading(false);
+      
+      if (user) {
+        setIsLoggedIn(true);
+        setUserData2(user);
+  
+        const userDocRef = doc(db, "user-data", user?.uid);
+        const userDocSnapshot = await getDoc(userDocRef);
+  
+        if (userDocSnapshot.exists()) {
+          const datahere = userDocSnapshot.data();
+          setUserData2(datahere);
+  
+          if (datahere.user_type === "Evaluator") {
+            console.log("Eval")
             setList([
               "Home",
               "Profile",
@@ -311,23 +284,30 @@ export default function PersistentDrawerLeft() {
               "NPTEL",
               "Evaluate",
               "Interview",
-            ])
-           }
-           
-         }
-
-         
-
-         console.log("else wala" , userDocSnapshot);
+            ]);
+          } else if (datahere.user_type === "Admin") {
+            console.log("Admin");
+            setList([
+              "Home",
+              "Profile",
+              "Form",
+              "NPTEL",
+              "Evaluate",
+              "Interview",
+              "Users",
+              "FormResponse",
+              "NPTELFormResponse",
+              "InterviewTable",
+              "ScoresTable",
+            ]);
+          }
+        }
       }
-      // setIsLoggedIn(!!user); // Update isLoggedIn based on user existence
-      // Set isLoading to false once authentication check is complete
     });
-
+  
     // Clean up the observer when the component unmounts
     return () => unsubscribe();
-  }, []);
-
+  }, []); // Empty dependency array
 
     const [list , setList] = useState([
       "Home",
@@ -398,7 +378,7 @@ export default function PersistentDrawerLeft() {
     }}
     variant="contained"
   >
-      {user ? `Logout (${user?.displayName})` : "Login"}
+      {user ? `Logout (${userData2?.name})` : "Login"}
     </Button>
 
         </Toolbar>
@@ -473,8 +453,7 @@ export default function PersistentDrawerLeft() {
         </Protected>} />
         <Route path="/evaluate" element={ 
            <KeepKids isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
-     
-                  <Evaluate/>
+                 <Evaluate/>
              </KeepKids>} />
         <Route path="/assessment" element={<Assessment />}>
           <Route path=":userId" element={<Assessment />} />

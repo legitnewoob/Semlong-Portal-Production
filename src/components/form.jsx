@@ -78,6 +78,16 @@ export default function Form() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    event.preventDefault();
+
+    // Check if any required field is empty
+    const requiredFields = ['name', 'roll_no', 'email', 'phone_no', 'organization', 'details_organization', 'company', 'stipend', 'drivelink'];
+    const emptyFields = requiredFields.filter(field => !event.target[field].value.trim());
+  
+    if (emptyFields.length > 0) {
+      alert(`Please fill in all required fields: ${emptyFields.join(', ')}`);
+      return;
+    }
     // Check if the user is logged in
     if (!auth.currentUser) {
       alert("You are not logged in");
@@ -535,7 +545,10 @@ export default function Form() {
                       fontSize: "1.5rem",
                       borderRadius: "30px",
                       width: "25vh",
-                      backgroundColor : "#b7202e"
+                      backgroundColor : "#ed1c24",
+                      "&:hover": {
+                        backgroundColor: "#b7202e", // Same color on hover
+                      },
                     }}
                     onClick={() => {
                       window.alert("Please Wait...");

@@ -27,7 +27,9 @@ export default function InterviewSchedule2() {
     const getFormData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "user-data"));
-        const formData = querySnapshot.docs.map((doc, index) => ({
+        const formData = querySnapshot.docs
+        .filter(doc => doc.data().user_type === "Student") 
+        .map((doc, index) => ({
             id: index + 1, // Incremental ID
             uid: doc.id, // Unique ID from Firestore document
             ...doc.data(), // Spread the rest of the document data

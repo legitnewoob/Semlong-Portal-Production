@@ -51,6 +51,7 @@ const rows = [
   { serialNo: 7, Name: "Nature of Internship Offered", scoreGiven: 0 },
   { serialNo: 8, Name: "Overall Impressions", scoreGiven: 0 },
   { serialNo: 9, Name: "Department specific recommendation", scoreGiven: 0 },
+  // { serialNo: 10, Name: auth?.currentUser?.displayName, id : auth?.currentUser.uid },
 ];
 
 const menuItems = [];
@@ -90,9 +91,10 @@ export default function Assessment() {
             const scoresDocSnapshot = await getDoc(scoresDocRef);
             if (scoresDocSnapshot.exists()) {
               const scoresData = scoresDocSnapshot.data();
-          console.log(scoresData);
-
-          const currentUserScores = scoresData[userId][auth?.currentUser?.uid];
+          console.log("scoresdata" , scoresData);
+              
+        
+          const currentUserScores = scoresData[auth?.currentUser?.uid];
 
           console.log("current_scores" , currentUserScores);
           if (currentUserScores) {
@@ -157,24 +159,54 @@ export default function Assessment() {
   };
 
 
+  // const handleUpdateScores = async () => {
+  //   if (userData) {
+  //     const scoresRef = doc(db, "scores", userData.uid);
+  //     const scoresData = {
+  //       [userData.uid]: {
+  //         [auth?.currentUser?.uid]: 
+  //         data.map((item) => ({
+  //           [item.Name]: item.scoreGiven,
+  //         })),
+  //       },
+  //     };
+  //     try {
+  //       await setDoc(scoresRef, scoresData, { merge: true });
+  //       window.alert("Scores updated successfully!");
+  //     } catch (error) {
+  //       console.error("Error updating scores:", error);
+  //     }
+  //   }
+  // };
+
   const handleUpdateScores = async () => {
     if (userData) {
       const scoresRef = doc(db, "scores", userData.uid);
-      const scoresData = {
-        [userData.uid]: {
-          [auth?.currentUser?.uid]: data.map((item) => ({
+      const scoresData = 
+      
+        {
+          [auth?.currentUser?.uid]: 
+          
+          data.map((item) => ({
             [item.Name]: item.scoreGiven,
           })),
-        },
-      };
+        }
+      ;
+
+      console.log("vatsal" , scoresData)
+       
+      
+
       try {
-        await setDoc(scoresRef, scoresData, { merge: true });
+        await setDoc(scoresRef, scoresData, {merge: true});
+
         window.alert("Scores updated successfully!");
       } catch (error) {
         console.error("Error updating scores:", error);
       }
     }
   };
+  
   return (
     <Box>
       <Paper
@@ -384,3 +416,35 @@ export default function Assessment() {
     </Box>
   );
 }
+
+// {
+//   "I5auqRGZHBSBWaSqpyZZmcM3ccC3": [
+//       {
+//           "Weeks of internship done": 4
+//       },
+//       {
+//           "Online Courses Completed till Date": 5
+//       },
+//       {
+//           "Participation in co-curricular activity": 4
+//       },
+//       {
+//           "CGPI till VI Sem": 6
+//       },
+//       {
+//           "Industry Profile": 6
+//       },
+//       {
+//           "Nature of work": 6
+//       },
+//       {
+//           "Nature of Internship Offered": 6
+//       },
+//       {
+//           "Overall Impressions": 6
+//       },
+//       {
+//           "Department specific recommendation": 4
+//       }
+//   ]
+// }

@@ -126,7 +126,6 @@ export default function() {
                 id : ro.length + 1 ,
                 name : oneDoc.name,
                 uid : oneDoc.uid,
-                total: 2
             })
         });
 
@@ -196,16 +195,20 @@ export default function() {
             col.push({
                 field: oneDoc.uid,
                 headerName: oneDoc.name,
+                width : 250,
+                
                 renderCell: (params) => (
                     <Button
                       variant="contained"
                       onClick={() => handleIndividualScores(params.row.uid, oneDoc.uid)} // Add user ID as a query parameter
                       target="_blank"
+                      sx={{ display: "flex", justifyContent: "center", alignItems: "center" , minWidth : "8em" , margin : "auto"}} // Center horizontally and vertically
+
                     >
-                      {
+                     <Typography variant='h6' fontWeight={'600'}> {
                         meraRaj(params, oneDoc)
                         }
-                        
+                        </Typography>
                     </Button>
                   ),
             

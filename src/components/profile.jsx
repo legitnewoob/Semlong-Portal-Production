@@ -107,7 +107,7 @@ export default function Profile() {
 
 </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          Form Status : Submitted
+          Form Status : 
         </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
           Interview Status : {userData?.interview_date} , {userData?.interview_time} , {userData?.interview_venue}

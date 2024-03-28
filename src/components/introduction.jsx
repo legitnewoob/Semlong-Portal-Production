@@ -52,7 +52,7 @@ export default function Introduction() {
       
           </Box>
         <Typography mt = "1.5rem" variant="h2" fontWeight={700} fontFamily={"Open Sans"} gutterBottom>
-        Welcome to{' '}
+        Welcome here{' '}
         <TypeAnimation
         sequence={[
             // Same substring at the start will only be typed once, initially

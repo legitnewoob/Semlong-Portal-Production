@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -19,12 +19,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { onAuthStateChanged } from "firebase/auth";
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
-import {auth , googleProvider} from "../config/firebase-config";
-import {db} from "../config/firebase-config"
-import { getDoc , getDocs , collection , addDoc , setDoc} from "firebase/firestore";
-import {updateDoc, doc} from "firebase/firestore";
+import { auth, googleProvider } from "../config/firebase-config";
+import { db } from "../config/firebase-config"
+import { getDoc, getDocs, collection, addDoc, setDoc } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { increment } from "firebase/firestore";
 
 
@@ -38,32 +39,59 @@ export default function Form() {
   const [caseno, setCaseNo] = useState("");
   const [fulltime, setFullTime] = useState("");
 
+  const [userData, setUserData] = useState([]);
 
-//   const [formData , setFormData] = useState([]);
-  const allForms = collection(db , "form-data");
-//   useEffect(() => {
-//     const getFormData = async() => {
-//       try {
-//         const querySnapshot = await getDocs(allForms);
-//         const formData2 = querySnapshot.docs.map((doc) => doc.data());
-//         setFormData(formData2);
+  console.log(userData);
+  //   useEffect(() => {
+  //     // Check if a user is logged in
+  //     const user = auth.currentUser;
+  //     if (user) {
+  //         const uid = user.uid;
+  //         const userDocRef = doc(db, 'user-data', uid);
+  //         // Retrieve the document for the current user
+  //         getDoc(userDocRef).then(docSnap => {
+  //             if (docSnap.exists()) {
+  //                 // Document exists, store it in state
+  //                 setUserData(docSnap.data());
+  //             } else {
+  //                 // Document does not exist
+  //                 console.log('Document does not exist for current user');
+  //             }
+  //         }).catch(error => {
+  //             console.error('Error getting document:', error);
+  //         });
+  //     } else {
+  //         // User is not logged in
+  //         console.log('No user logged in');
+  //     }
+  // }, [auth, db]);
 
-//         // console.log(formData);
-//       }
-//       catch(err)
-//       {
-//         console.error(err);
-//       }
-//     };
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
 
-//     getFormData();
-// } , []);
-// useEffect(() => {
-//   console.log(formData);
-// }, [formData]);
-// Above code is to read data from db as formdata
+      if (user) {
+        const uid = user.uid;
+        const userDocRef = doc(db, 'form-data', uid);
+        // Retrieve the document for the current user
+        getDoc(userDocRef).then(docSnap => {
+          if (docSnap.exists()) {
+            // Document exists, store it in state
+            const dataMined = docSnap.data();
+            setUserData(dataMined);
+          } else {
+            // Document does not exist
+            console.log('Document does not exist for current user');
+          }
+        }).catch(error => {
+          console.error('Error getting document:', error);
+        });
+      }
 
-  
+      // Clean up the observer when the component unmounts
+      return () => unsubscribe();
+    });
+  }, []);
+
   const handleChange = (event) => {
     setDept(event.target.value);
   };
@@ -75,15 +103,14 @@ export default function Form() {
   const handleRead = (event) => {
     setRead(event.target.value);
   };
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    event.preventDefault();
 
-    // Check if any required field is empty
     const requiredFields = ['name', 'roll_no', 'email', 'phone_no', 'organization', 'details_organization', 'company', 'stipend', 'drivelink'];
     const emptyFields = requiredFields.filter(field => !event.target[field].value.trim());
-  
+
     if (emptyFields.length > 0) {
       alert(`Please fill in all required fields: ${emptyFields.join(', ')}`);
       return;
@@ -93,7 +120,7 @@ export default function Form() {
       alert("You are not logged in");
       return;
     }
-    
+
     // Extract form data
     const data = new FormData(event.currentTarget);
     const formData = {
@@ -113,9 +140,9 @@ export default function Form() {
       drive_link: data.get("drivelink"),
       uid: auth.currentUser.uid, // Add UID here
     };
-  
+
     console.log(formData);
-    
+
     try {
       // Add the document to the collection
       const customId = auth?.currentUser?.uid;
@@ -124,33 +151,33 @@ export default function Form() {
       // console.log("Document written with ID: ", docRef.id);
       const userDocRef = doc(db, "user-data", formData.uid);
       const userDocSnapshot = await getDoc(userDocRef);
-    
-    // Step 3: Check if the user document exists
-    if (userDocSnapshot.exists()) {
-      // Step 4: Update the document in the 'user-data' collection
-      await updateDoc(userDocRef, {
-        dept: formData.dept,
-        email: formData.email,
-        final_verdict: false,
-        form_submitted: increment(1),
-        interview_details: null,
-        interview_venue: null,
-        name: formData.name,
-        nptel_form_submitted: 0,
-        phone_no: formData.phone_no || null, 
-        roll_no: formData.roll_no || null,
-        semlong_approved: false,
-        user_type: "Student",
-        category : caseno,
-      });
-    }
+
+      // Step 3: Check if the user document exists
+      if (userDocSnapshot.exists()) {
+        // Step 4: Update the document in the 'user-data' collection
+        await updateDoc(userDocRef, {
+          dept: formData.dept,
+          email: formData.email,
+          final_verdict: false,
+          form_submitted: increment(1),
+          interview_details: null,
+          interview_venue: null,
+          name: formData.name,
+          nptel_form_submitted: 0,
+          phone_no: formData.phone_no || null,
+          roll_no: formData.roll_no || null,
+          semlong_approved: false,
+          user_type: "Student",
+          category: caseno,
+        });
+      }
       window.alert("Form Submitted Successfully");
-      
+
     } catch (error) {
       console.error("Error adding document: ", error);
     }
   };
-  
+
 
   const openNewPage = () => {
     window.open("https://mag.wcoomd.org/uploads/2018/05/blank.pdf", "_blank"); // Opens the link in a new tab or window
@@ -164,8 +191,8 @@ export default function Form() {
     setFullTime(event.target.value);
   };
 
-  const handleDisable = () =>{
-    return read ==="yes" ? false : true; 
+  const handleDisable = () => {
+    return read === "yes" ? false : true;
   }
 
   console.log(fulltime);
@@ -179,7 +206,7 @@ export default function Form() {
         flexDirection: "column",
       }}
     >
-      <Typography variant="h4" gutterBottom sx={{ marginInlineStart: "25px" , fontWeight : "600"}}>
+      <Typography variant="h4" gutterBottom sx={{ marginInlineStart: "25px", fontWeight: "600" }}>
         Application Form
       </Typography>
       <Box sx={{ width: "95%" }}>
@@ -210,8 +237,10 @@ export default function Form() {
                   name="name"
                   autoComplete="name"
                   autoFocus
+                  defaultValue={userData.name}
+                  
                 />
-
+                
               </Grid>
               <Grid item xs={12} md={4}>
                 <TextField
@@ -537,7 +566,7 @@ export default function Form() {
                   }}
                 >
                   <Button
-                  // sx = {{backgroundColor : "#ed1c24"}}
+                    // sx = {{backgroundColor : "#ed1c24"}}
                     type="submit"
                     fullWidth
                     variant="contained"
@@ -545,7 +574,7 @@ export default function Form() {
                       fontSize: "1.5rem",
                       borderRadius: "30px",
                       width: "25vh",
-                      backgroundColor : "#ed1c24",
+                      backgroundColor: "#ed1c24",
                       "&:hover": {
                         backgroundColor: "#b7202e", // Same color on hover
                       },

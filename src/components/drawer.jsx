@@ -52,6 +52,7 @@ import KeepKids from "../context/only_kids";
 import KeepAdmin from "../context/only_admin";
 import KeepTeach from "../context/only_teach";
 import ScoresTable from "./scoretable";
+import UserRoles from "./usersroles";
 // import { useAuthState } from 'react-firebase-hooks/auth';
 import FeedRoundedIcon from '@mui/icons-material/FeedRounded';
 
@@ -288,9 +289,9 @@ export default function PersistentDrawerLeft() {
               "Evaluate",
               "Interview",
               "Users",
-              "FormResponse",
-              "NPTELFormResponse",
-              "InterviewTable",
+              // "FormResponse",
+              // "NPTELFormResponse",
+              // "InterviewTable",
               "ScoresTable",
             ]);
           } else if (datahere.user_type === "Admin") {
@@ -502,6 +503,8 @@ export default function PersistentDrawerLeft() {
           />
 
             <Route path="/scorestable" element={<ScoresTable/>}/>
+
+            <Route path="/users" element={<UserRoles/>}/>
 
           <Route path="/*"
             element={<Error404 />}

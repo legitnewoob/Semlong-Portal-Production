@@ -283,12 +283,12 @@ export default function PersistentDrawerLeft() {
             console.log("Eval")
             setList([
               "Home",
-              "Profile",
-              "Form",
-              "NPTEL",
+              // "Profile",
+              // "Form",
+              // "NPTEL",
               "Evaluate",
               "Interview",
-              "Users",
+              // "Users",
               // "FormResponse",
               // "NPTELFormResponse",
               // "InterviewTable",
@@ -503,8 +503,11 @@ export default function PersistentDrawerLeft() {
           />
 
             <Route path="/scorestable" element={<ScoresTable/>}/>
+            
+            <Route path="/users" element={  <KeepAdmin isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
 
-            <Route path="/users" element={<UserRoles/>}/>
+            <UserRoles/>
+            </KeepAdmin>}/>
 
           <Route path="/*"
             element={<Error404 />}

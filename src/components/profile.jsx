@@ -13,6 +13,7 @@ export default function Profile() {
   //Catch the user-data for the current uid 
   const [userData, setUserData] = useState(null); // State to store user data
 
+  console.log(userData);
   useEffect(() => {
     const fetchUserData = async () => {
       const currentUser = auth.currentUser;
@@ -106,13 +107,13 @@ export default function Profile() {
 
 </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          Form Status
+          Form Status : Submitted
         </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          Interview Status
+          Interview Status : {userData?.interview_date} , {userData?.interview_time} , {userData?.interview_venue}
         </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          Final Verdict
+          Shortlisted : {userData?.shortlisted ? "True" : "False"}
         </Grid>
       </Grid>
         </Paper>

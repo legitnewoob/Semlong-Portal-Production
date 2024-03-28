@@ -112,7 +112,7 @@ export default function Profile() {
           Interview Status : {userData?.interview_date} , {userData?.interview_time} , {userData?.interview_venue}
         </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          {/* Shortlisted : {userData?.shortlisted ? "True" : "False"} */}
+          Shortlisted : {userData?.shortlisted ? "True" : "False"}
         </Grid>
       </Grid>
         </Paper>

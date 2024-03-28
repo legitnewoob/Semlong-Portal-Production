@@ -455,7 +455,7 @@ export default function PersistentDrawerLeft() {
       <Main open={open}>
         <DrawerHeader />
         <Routes>
-          <Route path="/home" element={
+          <Route path="/" element={
               <Introduction />
           } />
           <Route path="/form" element={
@@ -480,7 +480,7 @@ export default function PersistentDrawerLeft() {
           <KeepKids isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
               <ChoiceForm/>
             </KeepKids>} />
-          <Route path='/'
+          <Route path='/profile'
             element={
               <KeepKids isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
                 <Profile />

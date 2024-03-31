@@ -336,7 +336,7 @@ export default function PersistentDrawerLeft() {
             edge="start"
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
-            <MenuIcon />
+            {auth?.currentUser && (<MenuIcon />)}
           </IconButton>
           {/* <img src="" alt="Logo" style={{ width: '40px' }} /> */}
           <div style={{ backgroundColor: 'white', margin: '5px', padding: "5px", borderRadius: '100%', display: 'inline-block', width: '4em', height: '4em' }}>
@@ -422,7 +422,7 @@ export default function PersistentDrawerLeft() {
           </div>
 
 
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose}> 
 
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />

@@ -207,12 +207,27 @@ export default function () {
             [
                 { field: 'id', headerName: "Sr No.", width: 90 },
                 {
+                    field : 'roll_no',
+                    headerName : 'Roll No.',
+                    width : 250,
+                    headerAlign : "center",
+                    align : 'center',
+                    valueGetter: (params) => {
+
+                        // <Typography variant="body1" component="div" fontWeight={"700"} sx= {{display : "flex" , justifyContent : "center" , alignItems : "center" , margin : "auto"}}>
+                        return params.row.roll_no;
+                        // </Typography>
+        
+                    }
+                },
+                {
                     field: 'name',
                     headerName: 'Full Name',
                     width: 250,
                     headerAlign: "center",
                     renderCell: CustomCellRenderer2,
-                }
+                },
+               
             ];
 
         let meraArray = []
@@ -228,6 +243,7 @@ export default function () {
         const onlyStud = meraArray.filter((oneDoc) => oneDoc.user_type == 'Student')
         const onlyEvals = meraArray.filter((oneDoc) => oneDoc.user_type == 'Evaluator')
 
+
         setTotalEvals(onlyEvals.length);
 
         onlyStud.forEach((oneDoc) => {
@@ -236,6 +252,7 @@ export default function () {
                 name: oneDoc.name,
                 uid: oneDoc.uid,
                 shortlisted : oneDoc.shortlisted,
+                roll_no : oneDoc.roll_no,
             })
         });
 
@@ -253,7 +270,7 @@ export default function () {
             scoresFromDb[doc.id] = doc.data()
         });
 
-        // console.log(scoresFromDb);
+        console.log(scoresFromDb);
         setSaareScores(scoresFromDb);
 
         const CustomCellRenderer = (params) => {

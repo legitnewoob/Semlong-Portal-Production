@@ -27,9 +27,11 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // googleProvider.setCustomParameters({   
-//   prompt : "select_account ",
-//   hd: "somaiya.edu"
+//   prompt: "select_account",
+//   hd: "somaiya.edu",
+//   login_hint: "your_email@somaiya.edu",
 // });
+
 
 
 export const db = getFirestore(app);

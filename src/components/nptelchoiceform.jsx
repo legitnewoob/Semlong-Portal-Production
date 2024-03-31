@@ -11,7 +11,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import {CircularProgress} from "@mui/material";
+import { useState , useEffect} from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth , db } from "../config/firebase-config";
+import { setDoc , doc , getDoc} from "firebase/firestore";
 
 const courseList = [
   "Data Analytics with Python - IITR",
@@ -33,12 +37,47 @@ const menuItems = courseList.map((course, index) => (
   </MenuItem>
 ));
 export default function ChoiceForm() {
+
+  const [userData , setUserData] = useState([]);
+  const [loading , setLoading] = useState(true);
   const [dept, setDept] = useState("");
   const [division, setDivision] = useState("");
+
 
   const [choice1, setChoice1] = useState("");
   const [choice2, setChoice2] = useState("");
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+
+      if (user) {
+        const userDocRef = doc(db, "nptel-form-data", user.uid);
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if(userDocSnapshot.exists())
+        {
+          const formData = userDocSnapshot.data();
+          setUserData(formData);
+
+          setDept(formData?.dept || "");
+          setDivision(formData?.division || "");
+          setChoice1(formData?.choice1 || "");
+          setChoice2(formData?.choice2 || "");
+          
+          
+        }
+        else{
+          console.log("This guy is submitting form for first time.")
+        }
+      }
+
+      setLoading(false);
+      return () => unsubscribe();
+    });
+  }, []);
+
+
+  const currentUserUid = auth?.currentUser?.uid;
   const handleChoice1 = (event) => {
     const newChoice = event.target.value;
     if (newChoice === choice2) {
@@ -65,10 +104,10 @@ export default function ChoiceForm() {
     setDivision(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event, currentUserUid) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const formData = {
       name: data.get("name"),
       roll_no: data.get("roll_no"),
       dept: dept,
@@ -80,8 +119,19 @@ export default function ChoiceForm() {
       DE37: data.get("DE37"),
       DE47: data.get("DE47"),
       OET37: data.get("OET37"),
-    });
+      uid: currentUserUid // Add UID of the current user
+    };
+  
+    try {
+      const docRef = await setDoc(doc(db, "nptel-form-data", currentUserUid), formData);
+      console.log("Form data added successfully!");
+      window.alert("Form Submitted Successfully");
+    } catch (error) {
+      console.error("Error adding form data: ", error);
+    }
   };
+
+
   return (
     <Box
       sx={{
@@ -102,9 +152,18 @@ export default function ChoiceForm() {
           marginTop: "20px",
         }}
       >
+        {loading ? (
+          <div style={{ textAlign: "center", margin: "2rem" }}>
+            {/* You can customize the loading indicator here */}
+            <CircularProgress />
+            <Typography variant="h6">Loading user data...</Typography>
+          </div>
+        ) :
+          (
+            <>
         <Divider>Personal Details</Divider>
 
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={(event) => handleSubmit(event, currentUserUid)} noValidate sx={{ mt: 1 }}>
           <Box gutterbottom>
             <Grid container spacing={2}>
               <Grid item xs={12} md={3}>
@@ -117,6 +176,7 @@ export default function ChoiceForm() {
                   name="name"
                   autoComplete="name"
                   autoFocus
+                  defaultValue={userData?.name || ""}
                 />
               </Grid>
               <Grid item xs={12} md={3}>
@@ -129,6 +189,7 @@ export default function ChoiceForm() {
                   name="roll_no"
                   autoComplete="roll_no"
                   autoFocus
+                  defaultValue={userData?.roll_no || ""}
                 />
               </Grid>
               <Grid item xs={12} md={3} mt={2}>
@@ -191,7 +252,7 @@ export default function ChoiceForm() {
                   </Select>
                 </FormControl>
               </Grid>
-              {/* <Grid item xs={12} md={6} mt={2}>
+              <Grid item xs={12} md={6} mt={2}>
                 <FormControl fullWidth>
                   <InputLabel id="department">Choice 2</InputLabel>
                   <Select
@@ -204,7 +265,7 @@ export default function ChoiceForm() {
                     {menuItems}
                   </Select>
                 </FormControl>
-              </Grid> */}
+              </Grid>
             </Grid>
           </Box>
           <Divider style={{ marginTop: "20px" }}>
@@ -223,6 +284,7 @@ export default function ChoiceForm() {
                 name="DE26"
                 autoComplete="elective"
                 autoFocus
+                defaultValue={userData?.DE26 || ""}
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -236,6 +298,7 @@ export default function ChoiceForm() {
                 name="OET26"
                 autoComplete="elective"
                 autoFocus
+                defaultValue={userData?.OET26 || ""}
               />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -248,6 +311,7 @@ export default function ChoiceForm() {
                 name="DE37"
                 autoComplete="DE37"
                 autoFocus
+                defaultValue={userData?.DE37 || ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -260,6 +324,7 @@ export default function ChoiceForm() {
                 name="DE47"
                 autoComplete="DE47"
                 autoFocus
+                defaultValue={userData?.DE47 || ""}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -273,6 +338,7 @@ export default function ChoiceForm() {
                 name="OET37"
                 autoComplete="OET37"
                 autoFocus
+                defaultValue={userData?.OET37 || ""}
               />
             </Grid>
           </Grid>
@@ -283,12 +349,15 @@ export default function ChoiceForm() {
               variant="contained"
               sx={{ mt: 3, mb: 2, width: "140px", height: "50px" , fontSize : "25px" }}
               disabled={choice1 === choice2}
+           
             >
               SUBMIT
             </Button>
             
           </Box>
         </Box>
+        </>
+          )}
       </Paper>
     </Box>
   );

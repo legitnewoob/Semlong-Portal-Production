@@ -116,7 +116,7 @@ export default function Introduction() {
         
       </Typography>
       <Typography variant="h6" fontWeight={600} textAlign="center" gutterBottom>
-      Please fill all the forms carefully as you can only edit your form once after submission.
+      Please fill all the forms carefully
     </Typography>
       {/* Add more instructions as needed */}
     </DialogContent>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef} from "react";
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
   MenuItem,
   Paper,
   Radio,
@@ -20,6 +21,12 @@ import {
   Typography,
 } from "@mui/material";
 import { onAuthStateChanged } from "firebase/auth";
+import CircularProgress from '@mui/material/CircularProgress';
+
+import { styled } from '@mui/material/styles';
+import NativeSelect from '@mui/material/NativeSelect';
+import InputBase from '@mui/material/InputBase';
+
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
 import { auth, googleProvider } from "../config/firebase-config";
@@ -32,65 +39,95 @@ import { increment } from "firebase/firestore";
 console.log(auth?.currentUser?.uid);
 
 
+const BootstrapInput = styled(InputBase)(({ theme }) => ({
+  'label + &': {
+    marginTop: theme.spacing(3),
+  },
+  '& .MuiInputBase-input': {
+    borderRadius: 4,
+    position: 'relative',
+    backgroundColor: theme.palette.background.paper,
+    border: '1px solid #ced4da',
+    fontSize: 16,
+    padding: '10px 26px 10px 12px',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    // Use the system font instead of the default Roboto font.
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+    '&:focus': {
+      borderRadius: 4,
+      borderColor: '#80bdff',
+      boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
+    },
+  },
+}));
+
 export default function Form() {
-  const [offer, setOffer] = useState("");
-  const [read, setRead] = useState("no");
-  const [dept, setDept] = useState("");
-  const [caseno, setCaseNo] = useState("");
-  const [fulltime, setFullTime] = useState("");
-
   const [userData, setUserData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
 
-  console.log(userData);
-  //   useEffect(() => {
-  //     // Check if a user is logged in
-  //     const user = auth.currentUser;
-  //     if (user) {
-  //         const uid = user.uid;
-  //         const userDocRef = doc(db, 'user-data', uid);
-  //         // Retrieve the document for the current user
-  //         getDoc(userDocRef).then(docSnap => {
-  //             if (docSnap.exists()) {
-  //                 // Document exists, store it in state
-  //                 setUserData(docSnap.data());
-  //             } else {
-  //                 // Document does not exist
-  //                 console.log('Document does not exist for current user');
-  //             }
-  //         }).catch(error => {
-  //             console.error('Error getting document:', error);
-  //         });
-  //     } else {
-  //         // User is not logged in
-  //         console.log('No user logged in');
-  //     }
-  // }, [auth, db]);
+  const [offer, setOffer] = useState("");
+  const [read, setRead] = useState('no');
+  const [dept , setDept] = useState("");
+  const [caseno, setCaseNo] = useState('');
+  const [fulltime, setFullTime] = useState('');
+
+  let department_name = userData?.dept;
+  console.log(department_name);
+
+
+  const userDataRef = useRef(null); // Ref to store userData
+
+
+ // State for loading in
+
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
 
       if (user) {
-        const uid = user.uid;
-        const userDocRef = doc(db, 'form-data', uid);
-        // Retrieve the document for the current user
-        getDoc(userDocRef).then(docSnap => {
-          if (docSnap.exists()) {
-            // Document exists, store it in state
-            const dataMined = docSnap.data();
-            setUserData(dataMined);
-          } else {
-            // Document does not exist
-            console.log('Document does not exist for current user');
-          }
-        }).catch(error => {
-          console.error('Error getting document:', error);
-        });
+        const userDocRef = doc(db, "form-data", user.uid);
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if(userDocSnapshot.exists())
+        {
+          const formData = userDocSnapshot.data();
+          setUserData(formData);
+
+          setDept(formData?.dept || ""); // Set dept with default if empty
+          setCaseNo(formData?.case_no || "");
+          setRead(formData?.read_policy || "no");
+          setOffer(formData?.offer || "");
+          setFullTime(formData?.full_time || "");
+          
+        }
+        else{
+          console.log("This guy is submitting form for first time.")
+        }
       }
 
       // Clean up the observer when the component unmounts
+      setIsLoading(false);
+
       return () => unsubscribe();
     });
   }, []);
+
+  const defaultUserName = userDataRef.current ? userDataRef.current.name : "";
+
+
 
   const handleChange = (event) => {
     setDept(event.target.value);
@@ -195,7 +232,6 @@ export default function Form() {
     return read === "yes" ? false : true;
   }
 
-  console.log(fulltime);
   return (
     <div
       style={{
@@ -213,9 +249,16 @@ export default function Form() {
         <Paper
           elevation={6}
           sx={{ height: "85%", width: "100%", padding: "2rem" }}
-          variant="outlined"
+          // variant="outlined"
         >
-          <Box
+          {isLoading ? (
+          <div style={{ textAlign: "center", margin: "2rem" }}>
+            {/* You can customize the loading indicator here */}
+            <CircularProgress />
+            <Typography variant="h6">Loading user data...</Typography>
+          </div>
+        ) :
+          ( <Box
             component="form"
             onSubmit={handleSubmit}
             noValidate
@@ -237,7 +280,8 @@ export default function Form() {
                   name="name"
                   autoComplete="name"
                   autoFocus
-                  defaultValue={userData.name}
+                  defaultValue={userData ? userData.name : ""} 
+                  
                   
                 />
                 
@@ -252,18 +296,25 @@ export default function Form() {
                   name="roll_no"
                   autoComplete="roll_no"
                   autoFocus
+                  defaultValue={userData ? userData.roll_no : ""} 
                 />
               </Grid>
               <Grid item xs={12} md={4} mt={1}>
+              {isLoading ? (
+  <Typography variant="h6" component="p">
+    Loading user data...
+  </Typography>
+) : (
                 <FormControl fullWidth>
-                  <InputLabel id="department">Dept.</InputLabel>
-                  <Select
-                    labelId="dept"
-                    id="dept"
-                    value={dept}
-                    label="dept"
-                    onChange={handleChange}
-                  >
+                <InputLabel id="demo-simple-select-label" required>Department</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label" // Match the id with InputLabel
+                  id="Department"
+                  value={dept}
+                  label="Department" // This prop is not needed for custom labels
+                  onChange={handleChange}
+                  defaultValue={userData?.dept}
+                >
                     <MenuItem value={"Computer Engineering"}>
                       Computer Engineering
                     </MenuItem>
@@ -277,6 +328,7 @@ export default function Form() {
                     <MenuItem value={"Mechanical"}>Mechanical</MenuItem>
                   </Select>
                 </FormControl>
+)}
               </Grid>
               <Grid item xs={12} md={4} mt={1}>
                 <TextField
@@ -288,6 +340,7 @@ export default function Form() {
                   name="email"
                   autoComplete="email"
                   autoFocus
+                  defaultValue={userData ? userData.email : ""} 
                 />
               </Grid>
               <Grid item xs={12} md={4} mt={1}>
@@ -300,18 +353,21 @@ export default function Form() {
                   name="phone_no"
                   autoComplete="Phone Number"
                   autoFocus
+                  defaultValue={userData ? userData.phone_no : ""} 
                 />
               </Grid>
               <Grid item xs={12} md={4} mt={2}>
                 <FormControl fullWidth>
-                  <InputLabel id="department">Case</InputLabel>
+                  <InputLabel id="department" required>Case</InputLabel>
                   <Select
-                    labelId="case"
+                    labelId="department"
                     id="case"
                     value={caseno}
                     label="Case"
                     onChange={handleCase}
+                    onClick={(e) => console.log(e.target.value)}
                   >
+
                     <MenuItem value={"Through College"}>
                       Case 1 : Through College
                     </MenuItem>
@@ -414,6 +470,7 @@ export default function Form() {
                   name="organization"
                   autoComplete="organization"
                   autoFocus
+                  defaultValue={userData?.organization}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -426,11 +483,12 @@ export default function Form() {
                   name="details_organization"
                   autoComplete="details_organization"
                   autoFocus
+                  defaultValue={userData?.details_organization}
                 />
               </Grid>
               <Grid item xs={12} md={4} mt={2}>
                 <FormControl fullWidth>
-                  <InputLabel id="department">Offer Received</InputLabel>
+                  <InputLabel id="department" required>Offer Received</InputLabel>
                   <Select
                     labelId="offer_received"
                     id="offer_received"
@@ -457,7 +515,7 @@ export default function Form() {
             >
               <Grid item xs={12} md={4} mt={2}>
                 <FormControl fullWidth>
-                  <InputLabel id="department">Full time received</InputLabel>
+                  <InputLabel id="department" required>Full time received</InputLabel>
                   <Select
                     labelId="fulltime"
                     id="fulltime"
@@ -481,6 +539,7 @@ export default function Form() {
                   name="company"
                   autoComplete="company"
                   autoFocus
+                  defaultValue={userData?.company_name}
                 />
               </Grid>
 
@@ -494,6 +553,7 @@ export default function Form() {
                   name="stipend"
                   autoComplete="stipend"
                   autoFocus
+                  defaultValue={userData?.stipend}
                 />
               </Grid>
             </Grid>
@@ -554,6 +614,7 @@ export default function Form() {
                   name="drivelink"
                   autoComplete="drivelink"
                   autoFocus
+                  defaultValue={userData?.drive_link}
                 />
               </Grid>
 
@@ -590,6 +651,7 @@ export default function Form() {
               </Grid>
             </Grid>
           </Box>
+  )}
         </Paper>
       </Box>
     </div>

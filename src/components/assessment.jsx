@@ -158,7 +158,11 @@ export default function Assessment() {
     console.log(data);
   };
 
-
+  const handleButtonClick = () => {
+    // Redirect to the new page
+    window.open('https://ibb.co/k1017h6', '_blank');
+};
+ 
   // const handleUpdateScores = async () => {
   //   if (userData) {
   //     const scoresRef = doc(db, "scores", userData.uid);
@@ -290,46 +294,17 @@ export default function Assessment() {
                 >
                   View Form Response
                 </Button>
-                <React.Fragment>
-  <Button
+                <Button
     variant="contained"
     sx={{
       width: "200px",
       height: "60px",
       margin: "16px 0",
     }}
-    onClick={handleClickOpen}
+  onClick={handleButtonClick}
   >
     View Rubrics
-  </Button>
-  <Dialog
-    fullScreen={fullScreen}
-    open={open}
-    onClose={handleClose}
-    aria-labelledby="responsive-dialog-title"
-  >
-    <DialogTitle id="responsive-dialog-title">
-      {"Rubrics to be followed"}
-    </DialogTitle>
-    <DialogContent>
-  <img
-    style={{ maxWidth: "100%", height: 'auto' }}
-    src="rubrics.png"
-    alt="image"
-    onError={(e) => {
-      console.error("Error loading image:", e);
-      e.target.style.display = 'none'; // Hide the image if an error occurs
-    }}
-  />
-</DialogContent>
-
-    <DialogActions>
-      <Button autoFocus onClick={handleClose}>
-        Close
-      </Button>
-    </DialogActions>
-  </Dialog>
-</React.Fragment>
+              </Button>
               </Box>
             </Grid>
           </Grid>

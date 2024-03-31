@@ -5,6 +5,7 @@ import { auth  , db} from "../config/firebase-config";
 import {doc , getDoc} from "firebase/firestore";
 import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
+import {CircularProgress} from "@mui/material";
 
 
 
@@ -12,6 +13,9 @@ console.log(auth?.currentUser?.photoUrl);
 export default function Profile() {
   //Catch the user-data for the current uid 
   const [userData, setUserData] = useState(null); // State to store user data
+  const [submit , setSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -20,8 +24,24 @@ export default function Profile() {
       // Check if user data already exists in the collection
       if (currentUser) { // Ensure currentUser is not null or undefined
         const userDocRef = doc(db, 'user-data', currentUser.uid);
+        const userDocRef2 = doc(db, 'form-data', currentUser.uid);
+
         try {
           const userDocSnapshot = await getDoc(userDocRef);
+          const userDocSnapshot2 = await getDoc(userDocRef2);
+
+          if(userDocSnapshot2.exists())
+          {
+            const formdata = userDocSnapshot2.data();
+            console.log(formdata);
+            if (formdata.form_submitted > 0) {
+              setSubmit(true);
+            }
+            
+          }
+          else{
+            console.log("No Form Data");
+          }
 
           if (userDocSnapshot.exists()) {
             const userData = userDocSnapshot.data();
@@ -33,9 +53,11 @@ export default function Profile() {
           console.error('Error fetching user data:', error);
         }
       }
+      setIsLoading(false);
     };
 
     fetchUserData();
+
   }, []);
 
 
@@ -47,6 +69,15 @@ export default function Profile() {
   return (
     <Box>
   <Paper elevation={3} sx={{ display: 'flex', flexDirection: 'column', height: "85%", padding: "3.5em", alignItems: "center", justifyContent: "center" , mt : "3rem" }}>
+  {isLoading ? (
+    <div style={{ textAlign: "center", margin: "2rem" }}>
+            {/* You can customize the loading indicator here */}
+            <CircularProgress />
+            <Typography variant="h6">Loading user data...</Typography>
+          </div>
+  ):
+(
+  <>
   <Typography variant="h4" sx={{mt : "-1.5rem", fontWeight: "bold", mb: "0.1rem" }}>User Details</Typography>
     
   <Grid container spacing={2}>
@@ -106,7 +137,7 @@ export default function Profile() {
 
 </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
-          Form Status : Updated
+          Form Status : {userData?.form_submitted > 0 ? "Submitted" : "Pending"}
         </Grid>
         <Grid item xs={12} md={4} sx={{ border: '1px solid black' }}>
           Interview Status : {userData?.interview_date} , {userData?.interview_time} , {userData?.interview_venue}
@@ -115,6 +146,8 @@ export default function Profile() {
           Shortlisted : {userData?.shortlisted ? "True" : "False"}
         </Grid>
       </Grid>
+    </>
+)}
         </Paper>
       </Box>
 

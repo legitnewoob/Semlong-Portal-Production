@@ -26,10 +26,10 @@ const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-googleProvider.setCustomParameters({   
-  prompt : "select_account ",
-  hd: "somaiya.edu"
-});
+// googleProvider.setCustomParameters({   
+//   prompt : "select_account ",
+//   hd: "somaiya.edu"
+// });
 
 
 export const db = getFirestore(app);

@@ -44,7 +44,7 @@ const questions = [
     "Department specific recommendation"
 ]
 
-export default function () {
+export default function ScoresTable() {
 
     const [columns, setColumns] = useState([]);
     const [rows, setRows] = useState([]);

@@ -228,6 +228,8 @@ export default function PersistentDrawerLeft() {
     try {
       await signOut(auth);
 
+      <Navigate to="/" replace />;
+      
 
       setTimeout(() => {
         alert("You have logged out.");
@@ -502,7 +504,12 @@ export default function PersistentDrawerLeft() {
             }
           />
 
-            <Route path="/scorestable" element={<ScoresTable/>}/>
+            <Route path="/scorestable" 
+            element={
+              <KeepAdmin isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
+
+              <ScoresTable/>
+              </KeepAdmin>}/>
             
             <Route path="/users" element={  <KeepAdmin isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
 

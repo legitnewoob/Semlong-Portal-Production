@@ -299,7 +299,7 @@ export default function PersistentDrawerLeft() {
           } else if (datahere.user_type === "Admin") {
             console.log("Admin");
             setList([
-              // "Home",
+              "Home",
               // "Profile",
               // "Form",
               // "NPTEL",

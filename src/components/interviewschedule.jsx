@@ -9,13 +9,25 @@ import {
 import dayjs from 'dayjs';
 
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid , GridToolbarExport , GridToolbarContainer} from "@mui/x-data-grid";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { db } from "../config/firebase-config";
+
+
+
+
+
+function CustomToolbar() {
+  return (
+    <GridToolbarContainer>
+      <GridToolbarExport />
+    </GridToolbarContainer>
+  );
+}
 
 export default function InterviewSchedule2() {
   const [rows, setRows] = useState([]);
@@ -58,6 +70,13 @@ export default function InterviewSchedule2() {
     return currentDate;
   };
   
+  const handleExportData = (params) => {
+    const exportData = params.rows.map((row) => ({
+      ...row,
+      time: row.time.format('HH:mm:ss'), // Format time for export
+    }));
+    return exportData;
+  };
 
 
 const newDataArray = rows.map((data, index) => {
@@ -230,6 +249,12 @@ const newDataArray = rows.map((data, index) => {
             pageSizeOptions={[5]}
             disableRowSelectionOnClick
             rowHeight={100}
+
+            components={{
+              Toolbar: CustomToolbar,
+            }}
+            getExportData={handleExportData} // Modify time format for export
+            
           />
         </Paper>
       </Box>

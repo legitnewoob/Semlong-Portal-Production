@@ -304,7 +304,7 @@ export default function PersistentDrawerLeft() {
               // "Form",
               // "NPTEL",
               // "Evaluate",
-              // "Interview",
+              "Interview",
               "Users",
               // "FormResponse",
               // "NPTELFormResponse",
@@ -496,20 +496,20 @@ export default function PersistentDrawerLeft() {
           <Route
             path="/interview"
             element={
-              <KeepTeach isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
+              // <KeepTeach isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
 
                 <InterviewSchedule />
-              </KeepTeach>
+              // </KeepTeach>
 
             }
           />
 
-            <Route path="/scorestable" 
+            <Route 
+            path="/scorestable" 
             element={
-              <KeepAdmin isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
-
+            
               <ScoresTable/>
-              </KeepAdmin>}/>
+            }/>
             
             <Route path="/users" element={  <KeepAdmin isLoggedIn={isLoggedIn} isLoading={isLoading} userData={userData2}>
 

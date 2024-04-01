@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid  , GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import { Paper, Box } from '@mui/material';
 import { auth, db } from '../config/firebase-config';
 import { getDocs, getDoc, doc, collection, updateDoc } from 'firebase/firestore';
@@ -15,12 +15,14 @@ import Typography from '@mui/material/Typography';
 import { Button } from '@mui/material';
 import { Co2Sharp } from '@mui/icons-material';
 import {Switch} from '@mui/material';
-
+import {CircularProgress} from '@mui/material';
 const getAvgFromArray = (myArray) => {
     let sum = 0;
     myArray.forEach((element) => sum = sum + parseInt(element))
     return (sum * 1.0 / myArray.length)
 }
+
+
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -44,13 +46,48 @@ const questions = [
     "Department specific recommendation"
 ]
 
+
+function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarExport />
+      </GridToolbarContainer>
+    );
+  }
+
 export default function ScoresTable() {
 
     const [columns, setColumns] = useState([]);
     const [rows, setRows] = useState([]);
+
+    const [allEvals , setAllEvals] = useState([])
+    const [totalEvals, setTotalEvals] = useState(0);
     // const [selectedKids, setSelectedKids] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
 
+    const [isLoading , setIsLoading] = useState(false);
+
+    const [toHide , setToHide] = useState({});
+    const [toShow , setToShow] = useState({});
+
+
+    //field: {oneDoc.uid} Scores` ,
+    useEffect(() => {
+        let allScores = {};
+        allEvals.forEach((e) => {
+            console.log("Event data" , e);
+            allScores[`${e.uid} Scores`] = false;
+            
+        })
+
+        console.log(allScores);
+        setToHide(allScores);
+
+
+
+    }, [columns , allEvals])
+
+    
     console.log(rows);
     // [
     //     2,
@@ -75,7 +112,6 @@ export default function ScoresTable() {
 
     const [open, setOpen] = React.useState(false);
 
-    const [totalEvals, setTotalEvals] = useState(0);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -243,7 +279,7 @@ export default function ScoresTable() {
         const onlyStud = meraArray.filter((oneDoc) => oneDoc.user_type == 'Student')
         const onlyEvals = meraArray.filter((oneDoc) => oneDoc.user_type == 'Evaluator')
 
-
+        setAllEvals(onlyEvals);
         setTotalEvals(onlyEvals.length);
 
         onlyStud.forEach((oneDoc) => {
@@ -283,11 +319,12 @@ export default function ScoresTable() {
 
 
 
-        const meraRaj = (params, oneDoc) => {
+        const meraRaj = (params, oneDoc , avg = true) => {
 
             let studentScore = scoresFromDb[params.row.uid];
 
             if (!studentScore) return 0;
+
 
             const stuUid = oneDoc.uid;
 
@@ -300,9 +337,22 @@ export default function ScoresTable() {
                     onlyScores.push(oneQuestionObj[key])
                 })
             })
-            return getAvgFromArray(onlyScores).toFixed(2);
+            // console.log(onlyScores);
+            if(avg) return getAvgFromArray(onlyScores).toFixed(2);
+
+            let finalStr = "[";
+            
+
+                    onlyScores.forEach((e) => {
+                        finalStr += `${e} , `;
+                    })
+
+                    finalStr += "]";    
+
+            return finalStr;
         }
 
+     
         const teraRaj = (params) => {
 
             let studentScore = scoresFromDb[params.row.uid];
@@ -334,6 +384,7 @@ export default function ScoresTable() {
                 field: oneDoc.uid,
                 headerName: oneDoc.name,
                 headerAlign: "center",
+                disableExport: true,
                 width: 250,
 
                 renderCell: (params) => (
@@ -347,9 +398,26 @@ export default function ScoresTable() {
                         <Typography variant='h6' fontWeight={'600'}>
 
                             {meraRaj(params, oneDoc)}
-                        </Typography>
-                    </Button>
+                            </Typography>
+                        </Button>
                 ),
+
+            })
+
+            col.push({
+                field: `${oneDoc.uid} Scores` ,
+                headerName: oneDoc.name,
+                headerAlign: "center",
+                // hide : true,
+                width: 0,
+                valueGetter: (params) => {
+
+                    
+                    return meraRaj(params, oneDoc , false)
+                    
+                    
+                      
+            },
 
             })
         })
@@ -382,65 +450,71 @@ export default function ScoresTable() {
                 />
             )
         })
+
+        
         
 
         setColumns(col)
     }
 
-//    const populateSelection = () => {
-
-//    }
     useEffect(() => {
         populateTable();
-        // populateSelection();
+
+        setIsLoading(false);
     }, [])
 
-    // const getSelectedRowsData = () => {
-    //     const selectedRowsData = rowSelectionModel.map((selectedRowId) => {
-    //       const row = data.rows.find((row) => row.id === selectedRowId);
-    //       return row.data;
-    //     });
-    //     return selectedRowsData;
-    //   };
+
 
     return (
-        <Box
-        // sx={{
-        //     display: 'flex',
-        //     flexDirection: 'column',
-        //     justifyContent: 'center',
-        //     alignItems: 'center',
-        //     height: '100%', // Take up all available height
-        //     margin: 'auto', // Center the Box horizontally
-        // }}
-        >
+        <Box>
             <Paper elevation={5} sx={{ height: "85%", padding: "1.5em" }}>
+            
+            {isLoading ? (
+    <div style={{ textAlign: "center", margin: "2rem" }}>
+            {/* You can customize the loading indicator here */}
+            <CircularProgress />
+            <Typography variant="h6">Loading user data...</Typography>
+          </div>
+  ):(
                 <DataGrid
                     rows={rows}
                     columns={columns}
-                    // initialState={{
-                    //     pagination: {
-                    //         paginationModel: {
-                    //             pageSize: 5,
-                    //         },
-                    //     },
-                    // }}
-                    // pageSizeOptions={[5]}
-                    // keepNonExistentRowsSelected
-                    // checkboxSelection
-                    // selectionModel={rowSelectionModel}
-                    // onRowSelectionModelChange={(newRowSelectionModel , ids) => {
-                    //     setRowSelectionModel(newRowSelectionModel.selectionModel);
-                    //     // const selectedIDs = new Set(ids);
-                    //     // const selectedRowData = rows.filter((row) =>
-                    //     //     selectedIDs.has(row.id)
-                    //     // );
-                    //     // console.log(selectedRowData);
+                    slots={{
+                        toolbar : CustomToolbar,
+                      }}
 
-                    //     // setSelectedKids(selectedRowData);
-                    // }}
+            //         slotProps={{ toolbar: { csvOptions: 
+                      
+            //             { fields: ['id', 'roll_no' , 'name' , 'totalScores', 'shortlisted' , 
+                      
+            //         ...allEvals.map((e) => {
+            //             return `${e.uid} Scores`
+            //         })
+
+
+            //     ]
+            //  } 
+
+            // } }}
+
+            // initialState={{
+                // columns: {
+                //     columnVisibilityModel : {
+                //         // Hide columns status and traderName, the other columns will remain visible
+                //         toShow,
+                //         // toHide
+                //         },
+                // },
+            //   }}
+
+                    // columnVisibilityModel={
+                    // // Hide columns status and traderName, the other columns will remain visible
+                    // toHide
+                    // }
                     disableRowSelectionOnClick
                 />
+
+  )}
 
                 <BootstrapDialog
                     onClose={handleClose}
@@ -485,8 +559,8 @@ export default function ScoresTable() {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '100%', // Take up all available height
-                    margin: 'auto', // Center the Box horizontally
+                    height: '100%',
+                    margin: 'auto', 
                 }}
             >
                 <Button
@@ -508,17 +582,3 @@ export default function ScoresTable() {
         </Box>
     )
 }
-
-
-// [
-//     {
-//         "id": 1,
-//         "name": "Raj Agrawal",
-//         "uid": "FTEVLFMRqIZ5YjYAmqL9dsl2eQ73"
-//     },
-//     {
-//         "id": 2,
-//         "name": "Kunal Agrawal",
-//         "uid": "IaAYlUwkwFaBEwEOngUsMobMjz42"
-//     }
-// ]

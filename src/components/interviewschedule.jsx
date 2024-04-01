@@ -22,9 +22,10 @@ import { db } from "../config/firebase-config";
 
 
 function CustomToolbar() {
+  
   return (
     <GridToolbarContainer>
-      <GridToolbarExport />
+      <GridToolbarExport printOptions={{ disableToolbarButton: true }} />
     </GridToolbarContainer>
   );
 }
@@ -75,6 +76,8 @@ export default function InterviewSchedule2() {
       ...row,
       time: row.time.format('HH:mm:ss'), // Format time for export
     }));
+
+    console.log("exportData:", exportData);
     return exportData;
   };
 
@@ -91,7 +94,7 @@ const newDataArray = rows.map((data, index) => {
         name: data.name,
         category: data.category,
         date: data.interview_date,
-        time: timeobj,
+        time: data.interview_time,
         venue: data.interview_venue,
     };
 });
@@ -113,7 +116,7 @@ const newDataArray = rows.map((data, index) => {
             <DemoContainer components={["DatePicker"]}>
               <DatePicker
                 label="Date"
-                value={dayjs(params.value)}
+                value= {dayjs(params.value)}
                 onChange={(newValue) =>
                   handleDateChange(params.row.id - 1, newValue)
                 }
@@ -131,9 +134,10 @@ const newDataArray = rows.map((data, index) => {
         <Box sx={{ padding: "8px" }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["TimePicker"]}>
+           
             <TimePicker
               label="Time"
-              value={dayjs(params.value)}
+              value={dayjs(`2022-04-17T${params.value}`)}
               onChange={(newValue) => handleTimeChange(params.row.id - 1, newValue)}
             />
 
@@ -184,9 +188,12 @@ const newDataArray = rows.map((data, index) => {
 
 
     updatedRows[index].interview_date = formattedDate;
+
+
     setRows(updatedRows);
   };
 
+  
   const handleTimeChange = (index, newValue) => {
     if (newValue && newValue.$H !== undefined && newValue.$m !== undefined && newValue.$s !== undefined) {
       const { $H: hours, $m: minutes, $s: seconds } = newValue;
@@ -194,6 +201,8 @@ const newDataArray = rows.map((data, index) => {
       
       const updatedRows = [...rows];
       updatedRows[index].interview_time = timeString;
+
+      console.log(updatedRows);
       setRows(updatedRows);
     } else {
       console.error("Invalid time value:", newValue);
@@ -211,6 +220,7 @@ const newDataArray = rows.map((data, index) => {
 
     console.log("venue updated" , rows);
   };
+
 
   const handleSubmit = async () => {
     try {
@@ -249,12 +259,15 @@ const newDataArray = rows.map((data, index) => {
             pageSizeOptions={[5]}
             disableRowSelectionOnClick
             rowHeight={100}
-
-            components={{
-              Toolbar: CustomToolbar,
+            getExportData={handleExportData} 
+            slots={{
+              toolbar: (props) => (
+                <CustomToolbar/>
+              ),
             }}
-            getExportData={handleExportData} // Modify time format for export
-            
+
+           // Modify time format for export
+
           />
         </Paper>
       </Box>

@@ -46,11 +46,11 @@ const questions = [
     "Department specific recommendation"
 ]
 
-
 function CustomToolbar() {
+  
     return (
       <GridToolbarContainer>
-        <GridToolbarExport />
+        <GridToolbarExport printOptions={{ disableToolbarButton: true }} />
       </GridToolbarContainer>
     );
   }
@@ -384,39 +384,37 @@ export default function ScoresTable() {
                 field: oneDoc.uid,
                 headerName: oneDoc.name,
                 headerAlign: "center",
-                disableExport: true,
+                align : "center",
+                // disableExport: true,
                 width: 250,
 
-                renderCell: (params) => (
-                    <Button
-                        variant="contained"
-                        onClick={() => handleIndividualScores(params.row.uid, oneDoc.uid)} // Add user ID as a query parameter
-                        target="_blank"
-                        sx={{ display: "flex", justifyContent: "center", alignItems: "center", minWidth: "8em", margin: "auto" }} // Center horizontally and vertically
+                valueGetter: (params) => (
+                    // <Button
+                    //     variant="contained"
+                    //     onClick={() => handleIndividualScores(params.row.uid, oneDoc.uid)} // Add user ID as a query parameter
+                    //     target="_blank"
+                    //     sx={{ display: "flex", justifyContent: "center", alignItems: "center", minWidth: "8em", margin: "auto" }} // Center horizontally and vertically
 
-                    >
-                        <Typography variant='h6' fontWeight={'600'}>
+                    // >
+                        // <Typography variant='h6' fontWeight={'600'}>
 
-                            {meraRaj(params, oneDoc)}
-                            </Typography>
-                        </Button>
+                           meraRaj(params, oneDoc)
+                            // </Typography>
+                        // </Button>
                 ),
 
             })
 
             col.push({
                 field: `${oneDoc.uid} Scores` ,
-                headerName: oneDoc.name,
+                headerName: `${oneDoc.name}'s Score`,
                 headerAlign: "center",
-                // hide : true,
-                width: 0,
+                align : 'center',
+                width: "250",
                 valueGetter: (params) => {
 
-                    
                     return meraRaj(params, oneDoc , false)
                     
-                    
-                      
             },
 
             })
@@ -451,7 +449,7 @@ export default function ScoresTable() {
             )
         })
 
-        
+        console.log(col);
         
 
         setColumns(col)
@@ -483,6 +481,22 @@ export default function ScoresTable() {
                         toolbar : CustomToolbar,
                       }}
 
+                    //   slotProps={{ toolbar: { csvOptions: { allColumns: true } } }}
+                    slotProps={{ toolbar: { csvOptions: { allColumns: true } } }}
+                    // slotProps={{
+                    //     toolbar: {
+                    //       csvOptions: {
+                    //         fields: [
+                    //           'id',
+                    //           'roll_no',
+                    //           'name',
+                    //           'totalScores',
+                    //           'shortlisted',
+                    //           ...(allEvals ? allEvals.map((e) => `${e.uid} Scores`) : []), 
+                    //         ],
+                    //       },
+                    //     },
+                    //   }}
             //         slotProps={{ toolbar: { csvOptions: 
                       
             //             { fields: ['id', 'roll_no' , 'name' , 'totalScores', 'shortlisted' , 
@@ -507,10 +521,8 @@ export default function ScoresTable() {
                 // },
             //   }}
 
-                    // columnVisibilityModel={
-                    // // Hide columns status and traderName, the other columns will remain visible
-                    // toHide
-                    // }
+            // columnVisibilityModel={toHide}
+            
                     disableRowSelectionOnClick
                 />
 

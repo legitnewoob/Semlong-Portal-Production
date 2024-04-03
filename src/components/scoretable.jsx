@@ -343,13 +343,18 @@ export default function ScoresTable() {
             let finalStr = "[";
             
 
-                    onlyScores.forEach((e) => {
-                        finalStr += `${e} , `;
-                    })
+            onlyScores.forEach((e, index) => {
+                    finalStr += `${e} , `;
+            });
+            
+            let finalStr2 = finalStr.slice(0, -2);
+            // finalStr = finalStr.slice(0, -2) + finalStr.slice(-1);
+            
+            finalStr2 += "]";    
+            
 
-                    finalStr += "]";    
 
-            return finalStr;
+            return finalStr2;
         }
 
      
